@@ -3,11 +3,15 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import cloud from './cloud.svg';
 import App from './App';
+
 import registerServiceWorker from './registerServiceWorker';
+
 import {
-  BrowserRouter as Router,
+
+  HashRouter,
   Route,
-  Link
+  Link,
+  Switch
 } from 'react-router-dom'
 
 
@@ -21,17 +25,30 @@ class WeatherDay extends React.Component {
 );
 
     return (
-    	
-    <button className = "btn btn-primary custom">
+    //Create the link to the correct url for that day
+    <Link to= {'/' + this.props.day} >
+    <button className = "btn btn-primary custom" onClick={this.props.onClick}>
     <div style  = {{color:"blue"}}>{this.props.day}</div>
     <img style={{width: 50, height: 50}} src={cloud}  />
     </button>
+    </Link>
+    
     
 
     );
 
   }
 
+}
+
+class WeatherHourly extends React.Component {
+	render(){
+		return(
+		<div>
+<div> {this.props.day} </div>
+</div>
+		);
+	}
 }
 
 
@@ -43,15 +60,43 @@ class WeatherWeek extends React.Component {
     constructor(props) {
 
     super(props);
+    this.state = {
+      day: "",
+    };
+
+    this.renderHourly = this.renderHourly.bind(this);
 
   }
 
+  renderHourly(day){
+  
+  	 this.setState({
+      day: day,
+    });  
+    }
+
+
   renderDay(day) {
 
-    return (<WeatherDay day = {day}/>
+    return (
+    	<div><WeatherDay day = {day} onClick = {()=> this.renderHourly(day)} />
+    	 
+    	 </div>
 
-    		);
+    	);
 
+  }
+
+  showHourly(){
+  	return(
+<div>
+		{this.state.day ?
+           <WeatherHourly day = {this.state.day} /> :
+           null
+        }
+        </div>
+
+  		);
   }
 
  
@@ -73,6 +118,7 @@ class WeatherWeek extends React.Component {
            <div class = "day">{this.renderDay("Thursday")}</div>
            <div class = "day">{this.renderDay("Friday")}</div>
            <div class = "day">{this.renderDay("Saturday")}</div>
+           <div class = "day">{this.showHourly()}</div>
 
 
         </div>
@@ -89,20 +135,32 @@ class WeatherWeek extends React.Component {
  
 
 
-
  
 
 
- 
+const Main = () => (
+  <main>
+    <Switch>
+      <Route path='/:day' component={WeatherHourly}/>
+    </Switch>
+  </main>
+)
+
+const AppIndex = () => (
+  <div>
+    <header>
+    	<WeatherWeek />
+  	</header>
+    <Main />
+  </div>
+)
 
 ReactDOM.render(
-
-
-
-  <WeatherWeek />
-
- ,
-
-  document.getElementById('root')
+	(
+  <HashRouter>
+    <AppIndex />
+  </HashRouter>
+),
+	document.getElementById('root')
 
 );

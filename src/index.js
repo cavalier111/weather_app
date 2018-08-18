@@ -15,6 +15,10 @@ import {
 } from 'react-router-dom'
 
 
+
+import { withRouter } from 'react-router'
+
+
 class WeatherDay extends React.Component {
 
   render() {
@@ -43,13 +47,18 @@ class WeatherDay extends React.Component {
 
 class WeatherHourly extends React.Component {
 	render(){
-		return(
+		return(	
+  
 		<div>
-<div> {this.props.day} </div>
+<div> {this.props.match.params.day} </div>
 </div>
 		);
 	}
 }
+
+//This allows you to access the parameters from the url (access day that is in url)
+const WeatherHourlyWithRouter = withRouter(WeatherHourly)
+
 
 
 
@@ -91,7 +100,7 @@ class WeatherWeek extends React.Component {
   	return(
 <div>
 		{this.state.day ?
-           <WeatherHourly day = {this.state.day} /> :
+           <WeatherHourlyWithRouter day = {this.state.day} /> :
            null
         }
         </div>

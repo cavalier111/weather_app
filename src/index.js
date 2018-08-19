@@ -3,20 +3,32 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import cloud from './cloud.svg';
 import App from './App';
-
 import registerServiceWorker from './registerServiceWorker';
-
 import {
 
   HashRouter,
   Route,
   Link,
   Switch
-} from 'react-router-dom'
+} from 'react-router-dom';
+import { withRouter } from 'react-router';
+import {createStore} from 'redux';
+import reducer from './reducer';
+import {Provider,connect} from 'react-redux';
+import * as actionCreators from './action_creators';
+import {List, Map} from 'immutable';
 
 
+const store = createStore(reducer);
 
-import { withRouter } from 'react-router'
+
+function mapStateToProps(state) {
+  return {
+    day: state.get('day'),
+  };
+}
+
+
 
 
 class WeatherDay extends React.Component {
@@ -45,6 +57,10 @@ class WeatherDay extends React.Component {
 
 }
 
+
+
+
+
 class WeatherHourly extends React.Component {
 	render(){
 		return(	
@@ -69,19 +85,15 @@ class WeatherWeek extends React.Component {
     constructor(props) {
 
     super(props);
-    this.state = {
-      day: "",
-    };
+    
 
     this.renderHourly = this.renderHourly.bind(this);
 
   }
 
   renderHourly(day){
-  
-  	 this.setState({
-      day: day,
-    });  
+
+  	 this.props.setDay(day);
     }
 
 
@@ -99,8 +111,8 @@ class WeatherWeek extends React.Component {
   showHourly(){
   	return(
 <div>
-		{this.state.day ?
-           <WeatherHourlyWithRouter day = {this.state.day} /> :
+		{this.props.day ?
+           <WeatherHourlyWithRouter /> :
            null
         }
         </div>
@@ -143,6 +155,10 @@ class WeatherWeek extends React.Component {
 
  
 
+const WeatherWeekRedux = connect(
+  mapStateToProps,
+  actionCreators
+)(WeatherWeek);
 
  
 
@@ -150,7 +166,7 @@ class WeatherWeek extends React.Component {
 const Main = () => (
   <main>
     <Switch>
-      <Route path='/:day' component={WeatherHourly}/>
+      <Route path='/:day' component={WeatherHourlyWithRouter}/>
     </Switch>
   </main>
 )
@@ -158,7 +174,7 @@ const Main = () => (
 const AppIndex = () => (
   <div>
     <header>
-    	<WeatherWeek />
+    	<WeatherWeekRedux />
   	</header>
     <Main />
   </div>
@@ -166,9 +182,11 @@ const AppIndex = () => (
 
 ReactDOM.render(
 	(
-  <HashRouter>
-    <AppIndex />
-  </HashRouter>
+	<Provider store={store}>
+  		<HashRouter>
+    		<AppIndex />
+  		</HashRouter>
+  	</Provider>
 ),
 	document.getElementById('root')
 
